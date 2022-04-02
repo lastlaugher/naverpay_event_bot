@@ -1,0 +1,8 @@
+*.pyc
+accounts.txt
+*.exe
+*.zip
+*.spec
+dist
+build
+settings.json
