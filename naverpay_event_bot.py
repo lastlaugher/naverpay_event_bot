@@ -48,10 +48,10 @@ class NaverPayEventBot:
         self.driver.find_element(by=By.ID, value='log.login').click()
 
     def is_click_event(self, img):
-
         for template in self.click_event_images:
             result = cv2.matchTemplate(img, template, cv2.cv2.TM_SQDIFF_NORMED)
-            box_loc = np.where(result < 1e-5)
+            box_loc = np.where(result < 1e-2)
+
             if len(box_loc[0]) > 0:
                 return True
         
@@ -101,7 +101,10 @@ class NaverPayEventBot:
     def click_daily_events(self):
         for url in open('event_urls.txt'):
             print(f'trying {url}')
-            self.driver.get(url)
+            try:
+                self.driver.get(url)
+            except:
+                pass
             time.sleep(3)
 
             try:
