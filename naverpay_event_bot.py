@@ -16,6 +16,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 class NaverPayEventBot:
     def __init__(self):
+        self.url ='https://event2.pay.naver.com/event/benefit/list'
         self.events = []
         self.click_event_images = []
         self.load_click_event_images()
@@ -37,7 +38,7 @@ class NaverPayEventBot:
 
     def login(self, user_id, pw):
         self.set_chrome_driver()
-        self.driver.get('https://event2.pay.naver.com/event/benefit/list')
+        self.driver.get(self.url)
 
         id_element = self.driver.find_element(by=By.ID, value='id')
         self.paste_safely(id_element, user_id)
@@ -58,6 +59,8 @@ class NaverPayEventBot:
         return False
 
     def click_onetime_events(self):
+        self.driver.get(self.url)
+
         if len(self.events) == 0:
             elements = self.driver.find_elements(by=By.CLASS_NAME, value='event_area')
             for element in tqdm.tqdm(elements, desc='Finding events'):
