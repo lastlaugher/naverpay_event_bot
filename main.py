@@ -1,6 +1,6 @@
 import time
 
-from naverpay_event_bot import NaverPayEventBot
+from naverpay_event_bot import NaverPayEventBot, Message
 
 def main():
 
@@ -13,8 +13,9 @@ def main():
         print(f'login with {user_id}')
 
         bot.login(user_id, pw)
-        bot.click_daily_events()
-        bot.click_onetime_events()
+        #bot.click_daily_events()
+        message = Message()
+        bot.click_onetime_events(message)
 
         time.sleep(3)
 
