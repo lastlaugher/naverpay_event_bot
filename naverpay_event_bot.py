@@ -1,6 +1,6 @@
-import cv2
+#import cv2
 import glob
-import numpy as np
+#import numpy as np
 import os
 import pyperclip
 import time
@@ -18,7 +18,7 @@ class NaverPayEventBot:
     def __init__(self):
         self.events = []
         self.click_event_images = []
-        self.load_click_event_images()
+        #self.load_click_event_images()
         self.set_chrome_driver()
          
     def load_click_event_images(self):
@@ -33,11 +33,15 @@ class NaverPayEventBot:
     def paste_safely(self, element, value):
         element.click()
         pyperclip.copy(value)
-        element.send_keys(Keys.CONTROL, 'v') 
+        #element.send_keys(Keys.CONTROL, 'v') 
+        if os.name == 'posix':
+            element.send_keys(Keys.COMMAND, 'v') 
+        else:
+            element.send_keys(Keys.CONTROL, 'v') 
 
     def login(self, user_id, pw):
         self.set_chrome_driver()
-        self.driver.get('https://event2.pay.naver.com/event/benefit/list')
+        self.driver.get('https://new-m.pay.naver.com/pcpay/eventbenefit')
 
         id_element = self.driver.find_element(by=By.ID, value='id')
         self.paste_safely(id_element, user_id)
@@ -59,10 +63,33 @@ class NaverPayEventBot:
 
     def click_onetime_events(self):
         if len(self.events) == 0:
-            elements = self.driver.find_elements(by=By.CLASS_NAME, value='event_area')
-            for element in tqdm.tqdm(elements, desc='Finding events'):
+            for _ in range(5):
+                self.driver.find_elements(by=By.TAG_NAME, value='body')[0].send_keys(Keys.PAGE_DOWN)
+                time.sleep(0.5)
+
+            elements = self.driver.find_elements(by=By.CLASS_NAME, value='ADRewardList_banner__2CWl0')
+            print(f'Found {len(elements)} elements')
+            time.sleep(5)
+            #for idx, element in enumerate(tqdm.tqdm(elements, desc='Finding events')):
+            for idx, element in enumerate(elements):
                 try:
-                    banner_element = element.find_element(by=By.CLASS_NAME, value='banner')
+                    title_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBannerSystem_title__3f6bG')
+
+                    if len(title_element) == 0:
+                        title = '이미지 배너'
+                    else:
+                        title = title_element[0].text
+
+                    reward_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBadgeClick_hide__2QRl2')
+
+                    if len(reward_element) == 0:
+                        continue
+
+                    reward = reward_element[1].get_attribute('innerText')
+                    print(f'{idx} {title} {reward}')
+
+
+                    continue
 
                     try:
                         title_element = element.find_element(by=By.CLASS_NAME, value='title')
@@ -86,6 +113,7 @@ class NaverPayEventBot:
                         self.events.append((title, url))
 
                 except Exception as e:
+                    print(str(e))
                     pass
 
         for title, url in self.events:
