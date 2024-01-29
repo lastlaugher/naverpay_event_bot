@@ -42,7 +42,19 @@ class NaverPayEventBot:
         self.telegram_token = token
         self.telegram_chat_id = chat_id
         
+    def decide_url(self, refer, current):
+        if refer.startswith('https://campaign2-api'):
+            end_str = '&request_id'
+            idx = refer.find(end_str)
+            return refer[:idx]
+        elif current.startswith('https://ofw.adison.co'):
+            return current
+        else:
+            return refer
+
     def click_onetime_events(self, message:Message):
+        telegram_message = '네이버페이 폐지줍기\n'
+
         self.selenium().get(self.url)
 
         self.selenium.wait(by=By.TAG_NAME, value='body')
@@ -76,28 +88,31 @@ class NaverPayEventBot:
                     self.selenium.wait_for_new_window()
                     self.selenium().switch_to.window(self.selenium().window_handles[-1])
 
-                    url = self.selenium().current_url
-                    end_str = 'DETAIL_FROM_LIST'
-                    idx = url.find(end_str)
-                    url = url[:idx + len(end_str)]
-
-                    print(url)
-
-                    if not self.db.search(Query().url == url):
-                        self.db.insert({'url': url})
-
-                        if self.telegram_token:
-                            send_message(self.telegram_token, self.telegram_chat_id, f'NEW NAVERPAY REWARD\n{url}')
-
                     time.sleep(1)
 
                     try:
                         self.selenium().switch_to.alert.accept()
-                    except:
+                        time.sleep(3)
+                    except Exception as e:
                         pass
 
+                    refer_url = self.selenium().execute_script('return document.referrer')
+                    url = self.decide_url(refer_url, self.selenium().current_url)
+                    print(url)
+
+                    if not self.db.search(Query().url == url):
+                        self.db.insert({'url': url, 'title': title, 'reward': reward, 'time': time.time()})
+
+                        telegram_message += f'{title} {reward}원\n{url}\n\n'
+
+                    time.sleep(1)
                     self.selenium().close()
                     self.selenium().switch_to.window(self.selenium().window_handles[0])
 
                 except Exception as e:
                     print(str(e))
+                    send_message(self.telegram_token, self.telegram_chat_id, 'exception occurred in naverpaybot: ' + str(e))
+                    exit()
+
+            if self.telegram_token:
+                send_message(self.telegram_token, self.telegram_chat_id, telegram_message)
