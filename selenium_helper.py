@@ -13,7 +13,7 @@ import pyperclip
 class SeleniumHelper:
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
         self.driver = driver
 
