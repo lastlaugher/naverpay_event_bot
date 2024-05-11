@@ -6,3 +6,4 @@ accounts.txt
 dist
 build
 settings.json
+db.json

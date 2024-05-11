@@ -47,10 +47,8 @@ class NaverPayEventBot:
             end_str = '&request_id'
             idx = refer.find(end_str)
             return refer[:idx]
-        elif current.startswith('https://ofw.adison.co'):
-            return current
         else:
-            return refer
+            return None
 
     def click_onetime_events(self, message:Message):
         telegram_message = '네이버페이 폐지줍기\n'
@@ -101,7 +99,7 @@ class NaverPayEventBot:
                     url = self.decide_url(refer_url, self.selenium().current_url)
                     print(url)
 
-                    if not self.db.search(Query().url == url):
+                    if url and not self.db.search(Query().url == url):
                         self.db.insert({'url': url, 'title': title, 'reward': reward, 'time': time.time()})
 
                         telegram_message += f'{title} {reward}\n{url}\n\n'
