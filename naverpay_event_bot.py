@@ -68,19 +68,20 @@ class NaverPayEventBot:
             time.sleep(5)
             for idx, element in enumerate(tqdm.tqdm(elements, desc='Finding events')):
                 try:
-                    title_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBannerSystem_title__3f6bG')
+                    title_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBannerSystem_description__3c34J')
 
                     if len(title_element) == 0:
                         title = '이미지 배너'
                     else:
                         title = title_element[0].text
 
-                    reward_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBadgeClick_hide__2QRl2')
+                    reward_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardClickBadge_badge__1xs0W')
 
                     if len(reward_element) == 0:
                         continue
 
-                    reward = reward_element[1].get_attribute('innerText')
+                    reward = reward_element[0].get_attribute('innerText')
+                    reward = reward.replace('클릭', '')
                     print(f'{idx} {title} {reward}')
 
                     element.click()
@@ -103,9 +104,9 @@ class NaverPayEventBot:
                     if not self.db.search(Query().url == url):
                         self.db.insert({'url': url, 'title': title, 'reward': reward, 'time': time.time()})
 
-                        telegram_message += f'{title} {reward}원\n{url}\n\n'
+                        telegram_message += f'{title} {reward}\n{url}\n\n'
 
-                    time.sleep(1)
+                    time.sleep(5)
                     self.selenium().close()
                     self.selenium().switch_to.window(self.selenium().window_handles[0])
 
