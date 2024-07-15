@@ -36,7 +36,7 @@ class NaverPayEventBot:
         self.selenium.paste_text_safely(pw_element, pw)
 
         time.sleep(1)
-        self.selenium().find_element(by=By.ID, value='log.login').click()
+        self.selenium().find_element(by=By.ID, value='submit_btn').click()
 
     def set_telegram(self, token, chat_id):
         self.telegram_token = token
