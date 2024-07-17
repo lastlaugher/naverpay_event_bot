@@ -12,7 +12,7 @@ def send_message(token, chat_id, message):
     bot.sendMessage(chat_id=chat_id, text=message)
 
 if __name__ == '__main__':
-    token = '6639060776:AAH2I1xEeHTzlwl3KZkPW-n4ciTfGBAOoN4'
+    token = '7153910612:AAGzkNOgAjXDMnkYBW0SIo4Ded8iX6NCu8U'
     chat_id = get_chat_id(token)
     print(f'chat_id: {chat_id}')
-    send_message(token, chat_id, '씨피씨서에서 스테스하트하다니다.')
+    send_message(token, chat_id, '테스트 메시지')
