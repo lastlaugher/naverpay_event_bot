@@ -24,8 +24,8 @@ class TelegramServer:
 
             if not self.exists(chat_id):
                 self.add_user(item.message.chat.to_dict())
-                self.send_message(f'{item.message.chat.last_name} {item.message.chat.first_name} 님 환영합니다.')
-                self.send_message_to_master(f'{item.message.chat.last_name} {item.message.chat.first_name} ({chat_id}) 님이 가입했습니다.')
+                self.send_message(chat_id=chat_id, message=f'{item.message.chat.last_name} {item.message.chat.first_name} 님 환영합니다.')
+                self.send_message_to_master(message=f'{item.message.chat.last_name} {item.message.chat.first_name} ({chat_id}) 님이 가입했습니다.')
 
     def add_user(self, item:dict):
         item['time'] = str(datetime.datetime.now())
