@@ -1,3 +1,5 @@
+import os
+import dotenv
 import telegram
 
 def get_chat_id(token):
@@ -12,7 +14,9 @@ def send_message(token, chat_id, message):
     bot.sendMessage(chat_id=chat_id, text=message)
 
 if __name__ == '__main__':
-    token = '7153910612:AAGzkNOgAjXDMnkYBW0SIo4Ded8iX6NCu8U'
+    dotenv.load_dotenv()
+    token = os.getenv('telegram_token')
+
     chat_id = get_chat_id(token)
     print(f'chat_id: {chat_id}')
     send_message(token, chat_id, '테스트 메시지')

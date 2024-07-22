@@ -1,5 +1,4 @@
 *.pyc
-accounts.txt
 *.exe
 *.zip
 *.spec
@@ -7,3 +6,5 @@ dist
 build
 settings.json
 db.json
+subscriber.json
+.env
