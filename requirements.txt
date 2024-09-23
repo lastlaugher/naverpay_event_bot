@@ -2,3 +2,5 @@ selenium
 pyperclip
 telegram
 dotenv
+tinydb
+tqdm
