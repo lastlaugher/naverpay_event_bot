@@ -36,7 +36,13 @@ class TelegramServer:
 
     def broadcast(self, message:str):
         for item in self.db.all():
-            self.send_message(item['id'], message)
+            try:
+                self.send_message(item['id'], message)
+                self.send_message_to_master(f'{item["id"]} {item["last_name"]} {item["first_name"]} 전송 완료')
+            except Exception as e:
+                self.send_message_to_master(f'{item["id"]} {item["last_name"]} {item["first_name"]} 전송 실패 {str(e)}')
+
+            time.sleep(5)
 
     def send_message(self, chat_id:str, message:str):
         self.bot.sendMessage(chat_id=chat_id, text=message)
