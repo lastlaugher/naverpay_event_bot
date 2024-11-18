@@ -11,7 +11,27 @@ def get_chat_id(token):
 
 def send_message(token, chat_id, message):
     bot = telegram.Bot(token=token)
-    bot.sendMessage(chat_id=chat_id, text=message)
+
+    tokens = split_message(message)
+
+    for token in tokens:
+        bot.sendMessage(chat_id=chat_id, text=token)
+
+def split_message(message):
+    messages = []
+    max_length = 4096
+
+    while True:
+        if len(message) < max_length:
+            messages.append(message)
+            break
+    
+        idx = message.rfind('\n', max_length)
+        messages.append(message[:idx])
+
+        message = message[idx+1:]
+
+    return messages
 
 if __name__ == '__main__':
     dotenv.load_dotenv()
