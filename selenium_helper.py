@@ -38,5 +38,5 @@ class SeleniumHelper:
             element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable((by, value)))
         return element
 
-    def wait_for_new_window(self, timeout=30):
-        WebDriverWait(self.driver, timeout).until(EC.number_of_windows_to_be(2))
+    def wait_for_new_window(self, timeout=30, expected_num_of_windows=2):
+        WebDriverWait(self.driver, timeout).until(EC.number_of_windows_to_be(expected_num_of_windows))

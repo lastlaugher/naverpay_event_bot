@@ -86,7 +86,12 @@ class NaverPayEventBot:
                 except Exception as e:
                     pass
 
-                self.selenium.wait_for_new_window()
+                try:
+                    self.selenium.wait_for_new_window(timeout=3, expected_num_of_windows=len(self.semenium().windows_handles) + 1)
+                except Exception as e:
+                    # 가끔 timeout 이 발생하는 경우가 있어서 무시함
+                    pass
+
                 self.selenium().switch_to.window(self.selenium().window_handles[-1])
 
                 time.sleep(1)
@@ -106,7 +111,7 @@ class NaverPayEventBot:
 
                     telegram_message += f'{title} {reward}\n{url}\n\n'
 
-                time.sleep(5)
+                time.sleep(3)
                 self.selenium().close()
                 self.selenium().switch_to.window(self.selenium().window_handles[0])
 
