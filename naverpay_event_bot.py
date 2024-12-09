@@ -34,6 +34,8 @@ class NaverPayEventBot:
         time.sleep(1)
         self.selenium().find_element(by=By.ID, value='submit_btn').click()
 
+        time.sleep(3)
+
     def set_telegram(self, token, chat_id):
         self.telegram_token = token
         self.telegram_chat_id = chat_id
@@ -54,7 +56,12 @@ class NaverPayEventBot:
 
         self.selenium().get(self.url)
 
-        self.selenium.wait(by=By.TAG_NAME, value='body')
+        try:
+            self.selenium.wait(by=By.CLASS_NAME, value='page_pcpay')
+        except:
+            if self.telegram_server:
+                self.telegram_server.send_message_to_master('로그인 실패')
+                os.exit()
 
         for _ in range(10):
             self.selenium().find_elements(by=By.TAG_NAME, value='body')[0].send_keys(Keys.PAGE_DOWN)
