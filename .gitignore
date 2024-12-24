@@ -7,4 +7,5 @@ build
 settings.json
 db.json
 subscriber.json
+message.json
 .env
