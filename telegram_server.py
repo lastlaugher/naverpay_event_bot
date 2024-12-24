@@ -21,6 +21,9 @@ class TelegramServer:
 
     def poll(self):
         for item in self.bot.getUpdates():
+            if not item.message:
+                continue
+
             chat_id = item.message.chat.id
 
             if not self.exists(chat_id, 'user'):
