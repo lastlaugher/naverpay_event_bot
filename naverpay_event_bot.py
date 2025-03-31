@@ -42,7 +42,11 @@ class NaverPayEventBot:
         self.telegram_server = TelegramServer(token=token, master_chat_id=chat_id)
         
     def decide_url(self, refer, current):
-        if refer.startswith('https://campaign2-api'):
+        if current.startswith('https://campaign2'):
+            end_str = '&request_id'
+            idx = current.find(end_str)
+            return current[:idx]
+        elif refer.startswith('https://campaign2'):
             end_str = '&request_id'
             idx = refer.find(end_str)
             return refer[:idx]
@@ -67,19 +71,19 @@ class NaverPayEventBot:
             self.selenium().find_elements(by=By.TAG_NAME, value='body')[0].send_keys(Keys.PAGE_DOWN)
             time.sleep(0.5)
 
-        elements = self.selenium().find_elements(by=By.CLASS_NAME, value='ADRewardList_banner__2CWl0')
+        elements = self.selenium().find_elements(by=By.CLASS_NAME, value='ADRewardList_item__UTZV8')
         print(f'Found {len(elements)} elements')
         time.sleep(5)
         for idx, element in enumerate(tqdm.tqdm(elements, desc='Finding events')):
             try:
-                title_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBannerSystem_description__3c34J')
+                title_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardBannerSystem_description__a3CM7')
 
                 if len(title_element) == 0:
                     title = '이미지 배너'
                 else:
                     title = title_element[0].text
 
-                reward_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardClickBadge_badge__1xs0W')
+                reward_element = element.find_elements(by=By.CLASS_NAME, value='ADRewardClickBadge_badge__E3t3g')
 
                 if len(reward_element) == 0:
                     continue
@@ -88,18 +92,27 @@ class NaverPayEventBot:
                 reward = reward.replace('클릭', '')
                 print(f'{idx} {title} {reward}')
 
+                window_handle_count = len(self.selenium().window_handles)
                 try:
                     element.click()
                 except Exception as e:
                     pass
 
                 try:
-                    self.selenium.wait_for_new_window(timeout=3, expected_num_of_windows=len(self.semenium().windows_handles) + 1)
+                    self.selenium.wait_for_new_window(timeout=3, expected_num_of_windows=window_handle_count + 1)
                 except Exception as e:
                     # 가끔 timeout 이 발생하는 경우가 있어서 무시함
                     pass
 
                 self.selenium().switch_to.window(self.selenium().window_handles[-1])
+                time.sleep(1)
+
+                try:
+                    popup = self.selenium().find_elements(by=By.CLASS_NAME, value='popup_link')
+                    if popup and len(popup) > 0:
+                        popup[0].click()
+                except:
+                    pass
 
                 time.sleep(1)
 
