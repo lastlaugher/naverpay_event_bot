@@ -69,10 +69,29 @@ class TelegramServer:
                 self.send_message_to_master(f'{item["id"]} {last_name} {first_name} 전송 실패 {str(e)}')
 
     def send_message(self, chat_id:str, message:str):
-        self.bot.sendMessage(chat_id=chat_id, text=message)
+        messages = self.split_messages(message)
+            
+        for message in messages:
+            self.bot.sendMessage(chat_id=chat_id, text=message)
 
     def send_message_to_master(self, message):
         self.send_message(chat_id=self.master_chat_id, message=message)
+
+    def split_message(self, message:str) -> list:
+        messages = []
+        max_length = 4096
+
+        while True:
+            if len(message) < max_length:
+                messages.append(message)
+                break
+        
+            idx = message.rfind('\n', 0, max_length)
+            messages.append(message[:idx])
+
+            message = message[idx+1:]
+
+        return messages
 
 if __name__ == '__main__':
     dotenv.load_dotenv()
