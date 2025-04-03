@@ -69,7 +69,7 @@ class TelegramServer:
                 self.send_message_to_master(f'{item["id"]} {last_name} {first_name} 전송 실패 {str(e)}')
 
     def send_message(self, chat_id:str, message:str):
-        messages = self.split_messages(message)
+        messages = self.split_message(message)
             
         for message in messages:
             self.bot.sendMessage(chat_id=chat_id, text=message)
