@@ -6,13 +6,14 @@ import dotenv
 import telegram
 from tinydb import TinyDB, Query
 
+
 class TelegramServer:
     def __init__(self, token, master_chat_id):
         self.token = token
         self.master_chat_id = master_chat_id
         self.bot = telegram.Bot(token=token)
-        self.subscriber_db = TinyDB('subscriber.json')
-        self.message_db = TinyDB('message.json')
+        self.subscriber_db = TinyDB("subscriber.json")
+        self.message_db = TinyDB("message.json")
 
     def listen(self):
         while True:
@@ -26,58 +27,69 @@ class TelegramServer:
 
             chat_id = item.message.chat.id
 
-            if not self.exists(chat_id, 'user'):
+            if not self.exists(chat_id, "user"):
                 self.add_user(item.message.chat.to_dict())
-                self.send_message(chat_id=chat_id, message=f'{item.message.chat.last_name} {item.message.chat.first_name} 님 네이버 폐지 줍줍에 가입하신 것을 환영합니다.')
-                self.send_message_to_master(message=f'{item.message.chat.last_name} {item.message.chat.first_name} ({chat_id}) 님이 가입했습니다.')
+                self.send_message(
+                    chat_id=chat_id,
+                    message=f"{item.message.chat.last_name} {item.message.chat.first_name} 님 네이버 폐지 줍줍에 가입하신 것을 환영합니다.",
+                )
+                self.send_message_to_master(
+                    message=f"{item.message.chat.last_name} {item.message.chat.first_name} ({chat_id}) 님이 가입했습니다."
+                )
 
             message_id = item.message.message_id
-            if not self.exists(message_id, 'message'):
+            if not self.exists(message_id, "message"):
                 self.add_message(item.message.to_dict())
-                self.send_message_to_master(message=f'{item.message.chat.last_name} {item.message.chat.first_name} 님이 메시지를 전송했습니다.\n{item.message.text}')
+                self.send_message_to_master(
+                    message=f"{item.message.chat.last_name} {item.message.chat.first_name} 님이 메시지를 전송했습니다.\n{item.message.text}"
+                )
 
-    def add_user(self, item:dict):
-        item['time'] = str(datetime.datetime.now())
+    def add_user(self, item: dict):
+        item["time"] = str(datetime.datetime.now())
         self.subscriber_db.insert(item)
 
-    def add_message(self, item:dict):
-        item['time'] = str(datetime.datetime.now())
+    def add_message(self, item: dict):
+        item["time"] = str(datetime.datetime.now())
         self.message_db.insert(item)
 
-    def exists(self, id, type:str) -> bool:
+    def exists(self, id, type: str) -> bool:
         if type == "user":
             return self.subscriber_db.search(Query().id == id)
         elif type == "message":
             return self.message_db.search(Query().message_id == id)
         else:
-            raise Exception(f'Unspoorted type: {type}')
+            raise Exception(f"Unspoorted type: {type}")
 
-    def broadcast(self, message:str):
+    def broadcast(self, message: str):
         for item in self.subscriber_db.all():
             try:
-                last_name = ''
-                if 'last_name' in item:
-                    last_name = item['last_name']
+                last_name = ""
+                if "last_name" in item:
+                    last_name = item["last_name"]
 
-                first_name = ''
-                if 'first_name' in item:
-                    first_name = item['first_name']
+                first_name = ""
+                if "first_name" in item:
+                    first_name = item["first_name"]
 
-                self.send_message(item['id'], message)
-                self.send_message_to_master(f'{item["id"]} {last_name} {first_name} 전송 완료')
+                self.send_message(item["id"], message)
+                self.send_message_to_master(
+                    f'{item["id"]} {last_name} {first_name} 전송 완료'
+                )
             except Exception as e:
-                self.send_message_to_master(f'{item["id"]} {last_name} {first_name} 전송 실패 {str(e)}')
+                self.send_message_to_master(
+                    f'{item["id"]} {last_name} {first_name} 전송 실패 {str(e)}'
+                )
 
-    def send_message(self, chat_id:str, message:str):
+    def send_message(self, chat_id: str, message: str):
         messages = self.split_message(message)
-            
+
         for message in messages:
             self.bot.sendMessage(chat_id=chat_id, text=message)
 
     def send_message_to_master(self, message):
         self.send_message(chat_id=self.master_chat_id, message=message)
 
-    def split_message(self, message:str) -> list:
+    def split_message(self, message: str) -> list:
         messages = []
         max_length = 4096
 
@@ -85,26 +97,31 @@ class TelegramServer:
             if len(message) < max_length:
                 messages.append(message)
                 break
-        
-            idx = message.rfind('\n', 0, max_length)
+
+            idx = message.rfind("\n", 0, max_length)
             messages.append(message[:idx])
 
-            message = message[idx+1:]
+            message = message[idx + 1 :]
 
         return messages
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     dotenv.load_dotenv()
 
-    token = os.getenv('telegram_token')
-    chat_id = os.getenv('telegram_chat_id')
+    token = os.getenv("telegram_token")
+    chat_id = os.getenv("telegram_chat_id")
 
     if not token:
-        raise Exception('telegram_token is not set')
+        raise Exception("telegram_token is not set")
 
     if not chat_id:
-        raise Exception('telegram_chat_id is not set')
+        raise Exception("telegram_chat_id is not set")
 
     server = TelegramServer(token=token, master_chat_id=chat_id)
     server.poll()
-    #server.broadcast('[공지] 그동안 매주 월요일 9시에 크롤링을 해서 전송했는데, 그렇게 하면 놓치는 줍줍이 있다는 제보가 들어왔습니다.\n그래서 앞으로는 월, 목 오전 9시에 전송할 예정입니다.\n개선 요청은 언제든지 환영합니다.\n감사합니다.\n주인백')
+    # server.broadcast('[공지] 그동안 매주 월요일 9시에 크롤링을 해서 전송했는데, 그렇게 하면 놓치는 줍줍이 있다는 제보가 들어왔습니다.\n그래서 앞으로는 월, 목 오전 9시에 전송할 예정입니다.\n개선 요청은 언제든지 환영합니다.\n감사합니다.\n주인백')
+    # server.broadcast(
+    #    "[공지] 현재 네이버페이 줍줍봇이 장애중입니다. 네이버에서 뭔가 변경한 것 같습니다. 조만간 수정할 예정입니다. 불편을 드려 죄송합니다.\n주인백"
+    # )
+    # server.send_message('7020789706', '안녕하세요. 네이버페이 링크는 매주 월요일 목요일 오전 9시 경에 전송됩니다. 감사합니다.')
