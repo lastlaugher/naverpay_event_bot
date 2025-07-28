@@ -21,6 +21,8 @@ class NaverPayEventBot:
         self.db = TinyDB("db.json")
         self.telegram_server = None
 
+        self.debug = False
+        
     def login(self, user_id, pw):
         self.selenium().get(self.url)
 
@@ -117,7 +119,8 @@ class NaverPayEventBot:
                         "arguments[0].scrollIntoView(true);", element
                     )
                     anchor = element.find_elements(by=By.TAG_NAME, value="a")[0]
-                    anchor.click()
+                    self.selenium().execute_script("arguments[0].click();", anchor)
+
                 except Exception as e:
                     pass
 
@@ -153,7 +156,7 @@ class NaverPayEventBot:
                 url = self.decide_url(refer_url, self.selenium().current_url)
                 print(url)
 
-                if url and not self.db.search(Query().url == url):
+                if not self.debug and url and not self.db.search(Query().url == url):
                     self.db.insert(
                         {
                             "url": url,
@@ -178,7 +181,7 @@ class NaverPayEventBot:
                 )
                 exit()
 
-        if self.telegram_server:
+        if not self.debug and self.telegram_server:
             self.telegram_server.broadcast(telegram_message)
 
 
