@@ -1,6 +1,5 @@
-selenium
-pyperclip
+DrissionPage
 telegram
-dotenv
+python-dotenv
 tinydb
 tqdm
