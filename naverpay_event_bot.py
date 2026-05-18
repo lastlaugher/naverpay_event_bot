@@ -79,7 +79,9 @@ class NaverPayEventBot:
         ):
             print("미션 페이지 로딩 실패 - 타이틀:", self.page.title)
             if self.telegram_server:
-                self.telegram_server.send_message_to_master("미션 페이지 로딩 실패 (로그인 확인)")
+                self.telegram_server.send_message_to_master(
+                    "미션 페이지 로딩 실패 (로그인 확인)"
+                )
             return
 
         for _ in range(10):
@@ -144,15 +146,19 @@ class NaverPayEventBot:
                         url = None
                     print(url)
 
-                    if not self.debug and url and not self.db.search(Query().url == url):
-                        # self.db.insert(
-                        #     {
-                        #         "url": url,
-                        #         "title": title,
-                        #         "reward": reward,
-                        #         "time": str(datetime.datetime.now()),
-                        #     }
-                        # )
+                    if (
+                        not self.debug
+                        and url
+                        and not self.db.search(Query().url == url)
+                    ):
+                        self.db.insert(
+                            {
+                                "url": url,
+                                "title": title,
+                                "reward": reward,
+                                "time": str(datetime.datetime.now()),
+                            }
+                        )
                         telegram_message += f"{title} {reward}\n{url}\n\n"
 
                     time.sleep(3)
@@ -165,7 +171,11 @@ class NaverPayEventBot:
                     url = self.decide_url(refer_url, self.page.url)
                     print(url)
 
-                    if not self.debug and url and not self.db.search(Query().url == url):
+                    if (
+                        not self.debug
+                        and url
+                        and not self.db.search(Query().url == url)
+                    ):
                         telegram_message += f"{title} {reward}\n{url}\n\n"
 
             except Exception as e:
@@ -176,8 +186,8 @@ class NaverPayEventBot:
                 except Exception:
                     pass
 
-        # if not self.debug and self.telegram_server:
-        #    self.telegram_server.broadcast(telegram_message)
+        if not self.debug and self.telegram_server:
+            self.telegram_server.broadcast(telegram_message)
 
 
 if __name__ == "__main__":
