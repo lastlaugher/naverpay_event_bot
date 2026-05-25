@@ -207,3 +207,4 @@ if __name__ == "__main__":
         bot.set_telegram(telegram_token, telegram_chat_id)
 
     bot.click_onetime_events()
+    bot.page.quit()
