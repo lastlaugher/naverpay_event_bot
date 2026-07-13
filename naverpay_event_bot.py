@@ -88,20 +88,24 @@ class NaverPayEventBot:
             self.page.run_js("window.scrollBy(0, 300)")
             time.sleep(0.5)
 
-        elements = self.page.eles(".BenefitList_item__iYazm")
+        elements = self.page.eles(".BenefitList-module-scss-module__wOuXPq__item")
         print(f"Found {len(elements)} elements")
         time.sleep(5)
 
         for idx, element in enumerate(tqdm.tqdm(elements, desc="Finding events")):
             try:
-                title_element = element.eles(".DetailItem_description__TUatR")
+                title_element = element.eles(
+                    ".DetailItem-module-scss-module__YUdvEa__description"
+                )
                 title = title_element[0].text if title_element else "이미지 배너"
 
-                reward_element = element.eles(".DetailItem_badge__ppzfA")
+                reward_element = element.eles(
+                    ".DetailItem-module-scss-module__YUdvEa__badge"
+                )
                 if not reward_element:
                     continue
 
-                reward = reward_element[0].text.replace("클릭\n", "")
+                reward = reward_element[0].text.replace("클릭", "").strip()
                 print(f"{idx} {title} {reward}")
 
                 anchor = element.ele("tag:a")
