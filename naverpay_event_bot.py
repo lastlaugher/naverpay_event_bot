@@ -41,8 +41,26 @@ class NaverPayEventBot:
         self.page.ele("#pw").input(pw)
         time.sleep(1.2)
 
-        login_btn = self.page.ele("#log.login") or self.page.ele("@value=로그인")
-        login_btn.click()
+        # 네이버 로그인 페이지 개편으로 버튼이 #loginBtn_row / #loginBtn_column
+        # 두 개로 나뉘고 화면 크기에 따라 하나만 실제로 보임 (2026-07 확인)
+        login_btn = self.page.run_js(
+            """
+            var btns = document.querySelectorAll('#loginBtn_row, #loginBtn_column');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].offsetParent !== null) return btns[i];
+            }
+            return null;
+            """
+        )
+        if login_btn:
+            login_btn.click()
+        else:
+            print("로그인 버튼을 찾지 못했습니다")
+            if self.telegram_server:
+                self.telegram_server.send_message_to_master(
+                    "로그인 버튼을 찾지 못했습니다 (네이버 로그인 페이지 변경 확인 필요)"
+                )
+            return
 
         self.page.wait.load_start()
         time.sleep(2)
